@@ -4,7 +4,7 @@
   content: '';
   display: block;
   position: absolute;
-  z-index: 1;
+  z-index: -1;
   left: 0;
   right: 0;
   height: 0;
@@ -14,26 +14,23 @@
 
 c {
   position: relative;
-}
 
-.c-over {
-  background-color: #ccc;
+  &.hover {
+    font-weight: bold;
+    background-color: #ddd;
+  }
 }
 
 c.label-1::before {
-  @include char-underline(-4px, #36f);
+  @include char-underline(-4px, #6Af);
 }
 
 c.label-2::after {
-  @include char-underline(-7px, #f36);
+  @include char-underline(-7px, #f6A);
 }
 
 d.label-3::after {
-  @include char-underline(-10px, #3f6);
-}
-
-d.label-4::before {
-  @include char-underline(-13px, #f3f);
+  @include char-underline(-10px, #9fc);
 }
 
 .char-inspector {

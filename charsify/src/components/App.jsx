@@ -13,14 +13,70 @@ const testText =
   'nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in ' +
   'reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla ' +
   'pariatur. Excepteur sint occaecat cupidatat non proident, sunt in ' +
+  'culpa qui officia deserunt mollit anim id est laborum.' +
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed ' +
+  'do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut ' +
+  'enim ad minim veniam, quis nostrud exercitation ullamco laboris ' +
+  'nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in ' +
+  'reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla ' +
+  'pariatur. Excepteur sint occaecat cupidatat non proident, sunt in ' +
+  'culpa qui officia deserunt mollit anim id est laborum.' +
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed ' +
+  'do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut ' +
+  'enim ad minim veniam, quis nostrud exercitation ullamco laboris ' +
+  'nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in ' +
+  'reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla ' +
+  'pariatur. Excepteur sint occaecat cupidatat non proident, sunt in ' +
+  'culpa qui officia deserunt mollit anim id est laborum.' +
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed ' +
+  'do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut ' +
+  'enim ad minim veniam, quis nostrud exercitation ullamco laboris ' +
+  'nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in ' +
+  'reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla ' +
+  'pariatur. Excepteur sint occaecat cupidatat non proident, sunt in ' +
+  'culpa qui officia deserunt mollit anim id est laborum.' +
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed ' +
+  'do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut ' +
+  'enim ad minim veniam, quis nostrud exercitation ullamco laboris ' +
+  'nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in ' +
+  'reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla ' +
+  'pariatur. Excepteur sint occaecat cupidatat non proident, sunt in ' +
+  'culpa qui officia deserunt mollit anim id est laborum.' +
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed ' +
+  'do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut ' +
+  'enim ad minim veniam, quis nostrud exercitation ullamco laboris ' +
+  'nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in ' +
+  'reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla ' +
+  'pariatur. Excepteur sint occaecat cupidatat non proident, sunt in ' +
+  'culpa qui officia deserunt mollit anim id est laborum.' +
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed ' +
+  'do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut ' +
+  'enim ad minim veniam, quis nostrud exercitation ullamco laboris ' +
+  'nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in ' +
+  'reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla ' +
+  'pariatur. Excepteur sint occaecat cupidatat non proident, sunt in ' +
+  'culpa qui officia deserunt mollit anim id est laborum.' +
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed ' +
+  'do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut ' +
+  'enim ad minim veniam, quis nostrud exercitation ullamco laboris ' +
+  'nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in ' +
+  'reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla ' +
+  'pariatur. Excepteur sint occaecat cupidatat non proident, sunt in ' +
+  'culpa qui officia deserunt mollit anim id est laborum.' +
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed ' +
+  'do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut ' +
+  'enim ad minim veniam, quis nostrud exercitation ullamco laboris ' +
+  'nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in ' +
+  'reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla ' +
+  'pariatur. Excepteur sint occaecat cupidatat non proident, sunt in ' +
   'culpa qui officia deserunt mollit anim id est laborum.';
 const testArray =
   (new Array(testText.length)).fill([]);
 testArray[1] = [1];
 testArray[3] = [1, 3];
-testArray[6] = [4, 5];
-testArray[7] = [1, 2, 3, 4, 5];
-testArray[8] = [1, 5];
+testArray[6] = [1, 2];
+testArray[7] = [2, 3];
+testArray[8] = [3];
 
 const testIndices = new Array(testText.length);
 for (let i = 0; i < testIndices.length; i++) {
@@ -29,9 +85,7 @@ for (let i = 0; i < testIndices.length; i++) {
 
 const zip = rows => rows[0].map((_, c) => rows.map(row => row[c]));
 
-
 export default class App extends React.Component {
-
   constructor(props) {
     super(props);
 
@@ -43,30 +97,40 @@ export default class App extends React.Component {
         indices: testIndices,
         trainable: [], // the trainable labels
       },
-      labels: [
-        {
-          id: uuid.v4(),
-          label: 'Label 0',
-        },
+      activeLabels: [
         {
           id: uuid.v4(),
           label: 'Label 1',
+          no: 1,
         },
         {
           id: uuid.v4(),
           label: 'Label 2',
+          no: 2,
+        },
+        {
+          id: uuid.v4(),
+          label: 'Label 3',
+          no: 3,
         },
       ],
     };
+
+    this.sampleLabelsCopy = this.state.sample.labels.slice();
   }
 
-  toggleClass = (index, class) => {
-    //TODO
+  componentDidUpdate() {
+    console.log(`Rendered App! ${((new Date()).getTime() - this.date.getTime())} ms`);
   }
+
+  setLabels = (charIndex, newLabels) => {
+    this.sampleLabelsCopy[charIndex] = newLabels;
+  };
+
+  date = new Date();
 
   render() {
-    const labels = this.state.labels;
-    console.log(testIndices);
+    this.date = new Date();
 
     return (
       <div className="app-wrapper">
@@ -84,9 +148,11 @@ export default class App extends React.Component {
                 this.state.sample.labels,
                 this.state.sample.indices,
               ])}
+            setLabels={this.setLabels}
+            activeLabels={this.state.activeLabels}
           />
         </div><div className="labels">
-          {labels.map((label) =>
+          {this.state.activeLabels.map((label) =>
             <div key={label.id}>
               <input type="checkbox" defaultChecked />
               <Label label={label.label} />

@@ -7,12 +7,99 @@ export default class Char extends React.Component {
     super(props);
     this.state = {
       classifying: false,
+      labels: this.props.labels,
+      hoverOn: false,
     };
   }
 
+
+  setpos = (e) => {
+    const mousepos = this.mousepos(e);
+    this.x = mousepos[0];
+    this.y = mousepos[1];
+  }
+
+  mousepos = (e) => [e.clientX, e.clientY];
+
+  range = [0, 0];
+
+  x = 0;
+  y = 0;
+
   showClassifier = (e) => {
-    e.preventDefault();
-    this.setState({ classifying: true });
+    console.log(this.range);
+    const mousedownPos = this.mousepos(e);
+    this.setpos(e);
+    document.addEventListener('mousemove', this.setpos);
+
+    setTimeout(() => {
+      document.removeEventListener('mousemove', this.setpos);
+      if ((mousedownPos[0] !== this.x) || (mousedownPos[1] !== this.y)) {
+        return;
+      }
+      const sel = window.getSelection();
+      if (sel) {
+        if (sel.toString()) {
+          if (sel.anchorNode && sel.focusNode) {
+            const anchorId = sel.anchorNode.parentElement.getAttribute('data-id');
+            const focusId = sel.focusNode.parentElement.getAttribute('data-id');
+            if (anchorId < focusId) {
+              this.range = [anchorId, focusId];
+            } else {
+              this.range = [focusId, anchorId];
+            }
+            this.setState({ classifying: true });
+          }
+        }
+        return;
+      }
+      this.range = [0, 0];
+      this.setState({ classifying: true });
+    }, 100);
+  }
+
+  hideClassifier = () => {
+    this.setState({ classifying: false });
+  }
+
+  hoverOn = () => {
+    this.setState({ hoverOn: true });
+  }
+
+  hoverOff= () => {
+    this.setState({ hoverOn: false });
+  }
+
+  toggleLabel = (label) => {
+    const labels = this.state.labels || [];
+    let newLabels = 0;
+    const i = labels.indexOf(label);
+    switch (i) {
+      case -1:
+        newLabels = labels.slice();
+        newLabels.push(label);
+        this.props.setLabels(this.props.idx, newLabels);
+        break;
+      default:
+        newLabels = labels.slice();
+        newLabels.splice(i, 1);
+        this.props.setLabels(this.props.idx, newLabels);
+    }
+    this.setState({
+      labels: newLabels,
+      hoverOn: false,
+    });
+  }
+
+  toggleRange = (label, start, stop) => {
+    this.props.toggleRange(label, start, stop);
+  }
+
+  toggler = () => {
+    if (this.range[0] || this.range[1]) {
+      return this.toggleRange;
+    }
+    return this.toggleLabel;
   }
 
   closeClassifier = () => {
@@ -20,7 +107,7 @@ export default class Char extends React.Component {
   }
 
   render() {
-    const labels = this.props.labels || [];
+    const labels = this.state.labels || [];
 
     let primaryLabels = '';
     for (let i = 1; i < 3; i++) {
@@ -38,13 +125,22 @@ export default class Char extends React.Component {
 
     return (
       <c
-        className={primaryLabels}
+        className={primaryLabels + (this.state.hoverOn ? ' hover' : '')}
         onMouseDown={this.showClassifier}
+        onMouseUp={this.hideClassifier}
+        onMouseOver={this.hoverOn}
+        onMouseLeave={this.hoverOff}
+        data-id={this.props.idx}
       >
         <d className={secondaryLabels} />
         {this.props.c}
         {this.state.classifying ?
-          <ClassifyPopup closeClassifier={this.closeClassifier} />
+          <ClassifyPopup
+            closeClassifier={this.closeClassifier}
+            toggleLabel={this.toggler()}
+            activeLabels={this.props.activeLabels}
+            range={this.range}
+          />
         : ''}
       </c>
     );
@@ -53,5 +149,9 @@ export default class Char extends React.Component {
 
 Char.propTypes = {
   c: React.PropTypes.string,
+  idx: React.PropTypes.number,
   labels: React.PropTypes.array,
+  setLabels: React.PropTypes.func,
+  activeLabels: React.PropTypes.array,
+  toggleRange: React.PropTypes.func,
 };

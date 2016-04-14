@@ -17,6 +17,11 @@ export default class ClassifyPopup extends React.Component {
     const el = e.target;
     e.stopPropagation();
     this.hoverOff(el);
+    this.props.toggleLabel(
+      Number(el.getAttribute('data-id')),
+      this.props.range[0],
+      this.props.range[1]
+    );
     setTimeout(() => {
       this.hoverOn(el);
       setTimeout(() => {
@@ -36,16 +41,15 @@ export default class ClassifyPopup extends React.Component {
         onMouseUp={this.props.closeClassifier}
       >
         <ul>
-          <li
-            onMouseMove={this.hoverOn}
-            onMouseLeave={this.hoverOff}
-            onMouseUp={this.toggleClass}
-          >Class 1</li>
-          <li
-            onMouseMove={this.hoverOn}
-            onMouseLeave={this.hoverOff}
-            onMouseUp={this.toggleClass}
-          >Class 2</li>
+          {this.props.activeLabels.map((label) =>
+            <li
+              key={label.no}
+              onMouseMove={this.hoverOn}
+              onMouseLeave={this.hoverOff}
+              onMouseUp={this.toggleClass}
+              data-id={label.no}
+            >{label.label}</li>
+          )}
         </ul>
       </div>
     );
@@ -54,4 +58,7 @@ export default class ClassifyPopup extends React.Component {
 
 ClassifyPopup.propTypes = {
   closeClassifier: React.PropTypes.func,
+  toggleLabel: React.PropTypes.func,
+  activeLabels: React.PropTypes.array,
+  range: React.PropTypes.array,
 };

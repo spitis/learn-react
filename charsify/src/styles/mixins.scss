@@ -19,3 +19,9 @@
   border-radius: $radius;
   background-clip: padding-box;  /* stops bg color from leaking outside the border: */
 }
+
+@mixin no-user-select() {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
