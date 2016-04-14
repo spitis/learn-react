@@ -1,0 +1,49 @@
+@import '../styles/mixins.scss';
+
+@mixin char-underline($offset, $color) {
+  content: '';
+  display: block;
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  right: 0;
+  height: 0;
+  bottom: $offset;
+  border-bottom: 3px solid $color;
+}
+
+c {
+  position: relative;
+}
+
+.c-over {
+  background-color: #ccc;
+}
+
+c.label-1::before {
+  @include char-underline(-4px, #36f);
+}
+
+c.label-2::after {
+  @include char-underline(-7px, #f36);
+}
+
+d.label-3::after {
+  @include char-underline(-10px, #3f6);
+}
+
+d.label-4::before {
+  @include char-underline(-13px, #f3f);
+}
+
+.char-inspector {
+  position: absolute;
+  top: 1em;
+  left: 0.5em;
+  padding: 0.5em;
+  z-index: 2;
+  background: #eee;
+  border: 1px solid #999;
+
+  @include border-radius(5px);
+}

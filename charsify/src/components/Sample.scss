@@ -1,0 +1,15 @@
+@mixin hyphens() {
+  -webkit-hyphens: auto;
+  -moz-hyphens: auto;
+  -ms-hyphens: auto;
+  hyphens: auto;
+}
+
+.sample-text {
+  font-size: 18px;
+  line-height: 36px;
+  width: 100%;
+  padding: 0;
+
+  @include hyphens();
+}

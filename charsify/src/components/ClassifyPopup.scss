@@ -1,0 +1,28 @@
+@import '../styles/mixins.scss';
+
+.classify-popup {
+  position: absolute;
+  top: -0.1em;
+  left: -0.4em;
+  padding: 1em;
+  z-index: 3;
+  font-size: 0.6em;
+  white-space: nowrap;
+  line-height: normal;
+
+  li {
+    border-top: 1px solid #999;
+    background-color: #eee;
+    cursor: pointer;
+    padding: 0.4em;
+
+    &.hover {
+      color: #226;
+      background-color: #ddf;
+    }
+  }
+
+  li:last-child {
+    border-bottom: 1px solid #999;
+  }
+}

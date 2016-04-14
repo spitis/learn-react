@@ -1,0 +1,47 @@
+@import "../styles/mixins.scss";
+
+body {
+  font-family: monospace;
+}
+
+.app-wrapper {
+  max-width: 1024px;
+  margin: auto;
+  padding: 12px;
+}
+
+.sample-label-wrapper {
+  @include flexbox();
+}
+
+.sample {
+  margin: 10px;
+  padding: 10px;
+  border: 1px solid #eee;
+
+  @include flex(2);
+  @include border-radius(10px);
+}
+
+.labels {
+  border: 1px solid #eee;
+  margin: 10px;
+  padding: 10px;
+
+  @include flex(1);
+  @include border-radius(10px);
+}
+
+.title-bar {
+  width: 100%;
+  margin: 10px;
+  font-size: 2em;
+  text-align: center;
+
+  svg {
+    position: relative;
+    top: -4px;
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+}
