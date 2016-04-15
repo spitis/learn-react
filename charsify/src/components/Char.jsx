@@ -12,6 +12,9 @@ export default class Char extends React.Component {
     };
   }
 
+  shouldComponentUpdate() {
+    return false;
+  }
 
   setpos = (e) => {
     const mousepos = this.mousepos(e);
@@ -27,7 +30,6 @@ export default class Char extends React.Component {
   y = 0;
 
   showClassifier = (e) => {
-    console.log(this.range);
     const mousedownPos = this.mousepos(e);
     this.setpos(e);
     document.addEventListener('mousemove', this.setpos);
@@ -107,6 +109,7 @@ export default class Char extends React.Component {
   }
 
   render() {
+    console.log('char rendered');
     const labels = this.state.labels || [];
 
     let primaryLabels = '';
@@ -125,11 +128,13 @@ export default class Char extends React.Component {
 
     return (
       <c
-        className={primaryLabels + (this.state.hoverOn ? ' hover' : '')}
-        onMouseDown={this.showClassifier}
-        onMouseUp={this.hideClassifier}
+        className={
+          primaryLabels +
+          (this.props.selected ? ' selected' : '') +
+          (this.state.hoverOn ? ' hover' : '')}
         onMouseOver={this.hoverOn}
         onMouseLeave={this.hoverOff}
+        onMouseMove={this.props.drag}
         data-id={this.props.idx}
       >
         <d className={secondaryLabels} />
@@ -154,4 +159,6 @@ Char.propTypes = {
   setLabels: React.PropTypes.func,
   activeLabels: React.PropTypes.array,
   toggleRange: React.PropTypes.func,
+  drag: React.PropTypes.func,
+  selected: React.PropTypes.bool,
 };

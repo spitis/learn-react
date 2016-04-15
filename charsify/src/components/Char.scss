@@ -15,6 +15,10 @@
 c {
   position: relative;
 
+  &.selected {
+    outline: 1px solid #9cf;
+  }
+
   &.hover {
     font-weight: bold;
     background-color: #ddd;

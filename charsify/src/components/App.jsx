@@ -6,6 +6,7 @@ import MdArrowBack from 'react-icons/lib/md/arrow-back';
 import MdArrowForward from 'react-icons/lib/md/arrow-forward';
 import './App.scss';
 
+// TEST TEXT
 const testText =
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed ' +
   'do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut ' +
@@ -70,6 +71,8 @@ const testText =
   'reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla ' +
   'pariatur. Excepteur sint occaecat cupidatat non proident, sunt in ' +
   'culpa qui officia deserunt mollit anim id est laborum.';
+
+// TEST LABELS
 const testArray =
   (new Array(testText.length)).fill([]);
 testArray[1] = [1];
@@ -78,11 +81,13 @@ testArray[6] = [1, 2];
 testArray[7] = [2, 3];
 testArray[8] = [3];
 
+// [0,1,2,3...] TEST INDICES
 const testIndices = new Array(testText.length);
 for (let i = 0; i < testIndices.length; i++) {
   testIndices[i] = i;
 }
 
+// Zip([1,2],[3,4]) => [[1,3],[2,4]]
 const zip = rows => rows[0].map((_, c) => rows.map(row => row[c]));
 
 export default class App extends React.Component {
@@ -95,7 +100,6 @@ export default class App extends React.Component {
         text: testText,
         labels: testArray,
         indices: testIndices,
-        trainable: [], // the trainable labels
       },
       activeLabels: [
         {
@@ -116,15 +120,16 @@ export default class App extends React.Component {
       ],
     };
 
-    this.sampleLabelsCopy = this.state.sample.labels.slice();
+    this.sampleLabelsMirror = this.state.sample.labels.slice();
   }
 
   componentDidUpdate() {
     console.log(`Rendered App! ${((new Date()).getTime() - this.date.getTime())} ms`);
   }
 
+  // Only affects mirror labels; state will need to be saved.
   setLabels = (charIndex, newLabels) => {
-    this.sampleLabelsCopy[charIndex] = newLabels;
+    this.sampleLabelsMirror[charIndex] = newLabels;
   };
 
   date = new Date();
@@ -151,7 +156,8 @@ export default class App extends React.Component {
             setLabels={this.setLabels}
             activeLabels={this.state.activeLabels}
           />
-        </div><div className="labels">
+        </div>
+        <div className="labels">
           {this.state.activeLabels.map((label) =>
             <div key={label.id}>
               <input type="checkbox" defaultChecked />
