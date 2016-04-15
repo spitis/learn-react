@@ -4,104 +4,107 @@ import './Sample.scss';
 
 export default class Sample extends React.Component {
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      selStart: -1,
-      selEnd: -1,
-    };
-  }
-
   selecting = false;
+  selStart = -1;
+  selEnd = -1;
+  selection = [];
 
-  drag = (e) => {
+  dragSelection = (e) => {
     if (!this.selecting) return;
-    const charIdx = e.target.getAttribute('data-id');
+    const charIdx = Number(e.target.getAttribute('data-id'));
     let changed = false;
-    if (this.state.selStart < 0) {
-      this.setState({ selStart: charIdx });
+    if (this.selStart < 0) {
+      this.selStart = charIdx;
     }
-    if (this.state.selEnd !== charIdx) {
-      this.setState({ selEnd: charIdx });
+    if (this.selEnd !== charIdx) {
       changed = true;
+      this.selEnd = charIdx;
     }
     if (changed) {
-      this.changeHighlight();
+      this.changeSelection();
     }
   }
 
-  changeHighlight = () => {
+  changeSelection = () => {
+    const newSelection = [];
+    if (this.selStart > this.selEnd) {
+      for (let i = this.selEnd; i <= this.selStart; i++) {
+        newSelection.push(i);
+      }
+    } else {
+      for (let i = this.selStart; i <= this.selEnd; i++) {
+        newSelection.push(i);
+      }
+    }
 
+    const newStart = newSelection[0];
+    const newEnd = newSelection[newSelection.length - 1];
+    const oldStart = this.selection[0];
+    const oldEnd = this.selection[this.selection.length - 1];
+
+    for (let i = newStart; i < oldStart; i++) {
+      if (i > newEnd) break;
+      this.refs[i].toggleOn();
+    }
+    for (let i = oldStart; i < newStart; i++) {
+      if (i > oldEnd) break;
+      this.refs[i].toggleOff();
+    }
+    for (let i = Math.max(oldEnd + 1, newStart); i <= newEnd; i++) {
+      this.refs[i].toggleOn();
+    }
+    for (let i = Math.max(newEnd + 1, oldStart); i <= oldEnd; i++) {
+      this.refs[i].toggleOff();
+    }
+
+    this.selection = newSelection;
+  }
+
+  clearSelection = () => {
+    this.selStart = -1;
+    this.selEnd = -1;
+    for (let i = this.selection[0]; i <= this.selection[this.selection.length - 1]; i++) {
+      this.refs[i].toggleOff();
+    }
+    this.selection = [];
+  }
+
+  startSelecting = (e) => {
+    this.clearSelection();
+    const selStart = Number(e.target.getAttribute('data-id'));
+    this.selecting = true;
+    this.selStart = selStart;
+    this.selEnd = selStart;
+    this.selection = [selStart];
+    this.refs[selStart].toggleOn();
   }
 
   stopSelecting = () => {
     this.selecting = false;
-    this.setState({
-      selStart: -1,
-      selEnd: -1,
-    });
-  }
-
-  renderRange = (arr) => {
-    return (
-      [].map.call(arr, (charLabels) =>
-        <span>{charLabels[0]}</span>
-      )
-    );
+    this.selStart = -1;
+    this.selEnd = -1;
   }
 
   render() {
-    let start;
-    let stop;
-    if (this.state.selStart < this.state.selEnd) {
-      start = this.state.selStart;
-      stop = Number(this.state.selEnd) + 1;
-    } else {
-      start = this.state.selEnd;
-      stop = Number(this.state.selStart) + 1;
-    }
-    let firstArr = [];
-    let secondArr = [];
-    let thirdArr = [];
-    if (stop > 0) {
-      firstArr = this.props.textLabels.slice(0, start);
-      secondArr = this.props.textLabels.slice(start, stop);
-      thirdArr = this.props.textLabels.slice(stop);
-    }
-
-    console.log(`Start: ${start}`);
-    console.log(`Stop: ${stop}`);
-    console.log(`2nd Array: ${secondArr.length}`);
-
     return (
       <div
         className="sample-text"
         onMouseLeave={this.stopSelecting}
         onMouseUp={this.stopSelecting}
-        onMouseDown={() => (this.selecting = true)}
       >
-        {[].map.call(this.props.textLabels, (charLabels) => {
-          return (
+        {[].map.call(this.props.textLabels, (charLabels) => (
             <Char
               key={charLabels[2]}
               idx={charLabels[2]}
               ref={charLabels[2]}
               c={charLabels[0]}
               labels={charLabels[1]}
-              drag={this.drag}
+              dragSelection={this.dragSelection}
+              startSelecting={this.startSelecting}
               setLabels={this.props.setLabels}
               activeLabels={this.props.activeLabels}
             />
-          );
-        })}
-        <div className="highlight-mirror">
-          {this.renderRange(firstArr)}
-          <span className="selected-highlight">
-            {this.renderRange(secondArr)}
-          </span>
-          {this.renderRange(thirdArr)}
-        </div>
+        ))}
       </div>
     );
   }

@@ -1,19 +1,14 @@
 import React from 'react';
-import ClassifyPopup from './ClassifyPopup.jsx';
 import './Char.scss';
 
 export default class Char extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      classifying: false,
+      selected: false,
       labels: this.props.labels,
       hoverOn: false,
     };
-  }
-
-  shouldComponentUpdate() {
-    return false;
   }
 
   setpos = (e) => {
@@ -29,47 +24,20 @@ export default class Char extends React.Component {
   x = 0;
   y = 0;
 
-  showClassifier = (e) => {
-    const mousedownPos = this.mousepos(e);
-    this.setpos(e);
-    document.addEventListener('mousemove', this.setpos);
-
-    setTimeout(() => {
-      document.removeEventListener('mousemove', this.setpos);
-      if ((mousedownPos[0] !== this.x) || (mousedownPos[1] !== this.y)) {
-        return;
-      }
-      const sel = window.getSelection();
-      if (sel) {
-        if (sel.toString()) {
-          if (sel.anchorNode && sel.focusNode) {
-            const anchorId = sel.anchorNode.parentElement.getAttribute('data-id');
-            const focusId = sel.focusNode.parentElement.getAttribute('data-id');
-            if (anchorId < focusId) {
-              this.range = [anchorId, focusId];
-            } else {
-              this.range = [focusId, anchorId];
-            }
-            this.setState({ classifying: true });
-          }
-        }
-        return;
-      }
-      this.range = [0, 0];
-      this.setState({ classifying: true });
-    }, 100);
-  }
-
-  hideClassifier = () => {
-    this.setState({ classifying: false });
-  }
-
   hoverOn = () => {
     this.setState({ hoverOn: true });
   }
 
   hoverOff= () => {
     this.setState({ hoverOn: false });
+  }
+
+  toggleOn = () => {
+    this.setState({ selected: true });
+  }
+
+  toggleOff = () => {
+    this.setState({ selected: false });
   }
 
   toggleLabel = (label) => {
@@ -93,23 +61,7 @@ export default class Char extends React.Component {
     });
   }
 
-  toggleRange = (label, start, stop) => {
-    this.props.toggleRange(label, start, stop);
-  }
-
-  toggler = () => {
-    if (this.range[0] || this.range[1]) {
-      return this.toggleRange;
-    }
-    return this.toggleLabel;
-  }
-
-  closeClassifier = () => {
-    this.setState({ classifying: false });
-  }
-
   render() {
-    console.log('char rendered');
     const labels = this.state.labels || [];
 
     let primaryLabels = '';
@@ -130,35 +82,27 @@ export default class Char extends React.Component {
       <c
         className={
           primaryLabels +
-          (this.props.selected ? ' selected' : '') +
+          (this.state.selected ? ' selected' : '') +
           (this.state.hoverOn ? ' hover' : '')}
         onMouseOver={this.hoverOn}
         onMouseLeave={this.hoverOff}
-        onMouseMove={this.props.drag}
+        onMouseMove={this.props.dragSelection}
+        onMouseDown={this.props.startSelecting}
         data-id={this.props.idx}
       >
         <d className={secondaryLabels} />
         {this.props.c}
-        {this.state.classifying ?
-          <ClassifyPopup
-            closeClassifier={this.closeClassifier}
-            toggleLabel={this.toggler()}
-            activeLabels={this.props.activeLabels}
-            range={this.range}
-          />
-        : ''}
       </c>
     );
   }
 }
 
 Char.propTypes = {
-  c: React.PropTypes.string,
   idx: React.PropTypes.number,
+  c: React.PropTypes.string,
   labels: React.PropTypes.array,
+  dragSelection: React.PropTypes.func,
+  startSelecting: React.PropTypes.func,
   setLabels: React.PropTypes.func,
   activeLabels: React.PropTypes.array,
-  toggleRange: React.PropTypes.func,
-  drag: React.PropTypes.func,
-  selected: React.PropTypes.bool,
 };
