@@ -75,11 +75,6 @@ const testText =
 // TEST LABELS
 const testArray =
   (new Array(testText.length)).fill([]);
-testArray[1] = [1];
-testArray[3] = [1, 3];
-testArray[6] = [1, 2];
-testArray[7] = [2, 3];
-testArray[8] = [3];
 
 // [0,1,2,3...] TEST INDICES
 const testIndices = new Array(testText.length);
@@ -118,13 +113,12 @@ export default class App extends React.Component {
           no: 3,
         },
       ],
+      highlighting: 0,
+      erasing: 0,
+      toolLock: false,
     };
 
     this.sampleLabelsMirror = this.state.sample.labels.slice();
-  }
-
-  componentDidUpdate() {
-    console.log(`Rendered App! ${((new Date()).getTime() - this.date.getTime())} ms`);
   }
 
   // Only affects mirror labels; state will need to be saved.
@@ -132,40 +126,94 @@ export default class App extends React.Component {
     this.sampleLabelsMirror[charIndex] = newLabels;
   };
 
-  date = new Date();
+  doesRangeHaveLabel = (rangeStart, rangeStop, label) => {
+    for (let i = rangeStart; i <= rangeStop; i++) {
+      if (this.sampleLabelsMirror[i].includes(label)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  labelSelection = (label) => this.refs.sample.labelSelection(label);
+  unlabelSelection = (label) => this.refs.sample.unlabelSelection(label);
+
+  toggleToolLock = () => this.setState({ toolLock: false });
+
+  startHighlighting = (label) => this.setState({
+    highlighting: label,
+    erasing: 0,
+    toolLock: false,
+  });
+
+  startErasing = (label) => this.setState({
+    erasing: label,
+    highlighting: 0,
+    toolLock: false,
+  });
+
+  clearTools = () => {
+    if (this.state.toolLock) return;
+
+    this.setState({
+      highlighting: 0,
+      erasing: 0,
+    });
+  }
+
+  isSelection = () => this.refs.sample.selStart >= 0;
 
   render() {
-    this.date = new Date();
-
     return (
-      <div className="app-wrapper">
-      <div className="title-bar">
-        <MdArrowBack />
-        Sample No. 9213837
-        <MdArrowForward />
-      </div>
-      <div className="sample-label-wrapper">
-        <div className="sample">
-          <Sample
-            textLabels={
-              zip([
-                this.state.sample.text.split(''),
-                this.state.sample.labels,
-                this.state.sample.indices,
-              ])}
-            setLabels={this.setLabels}
-            activeLabels={this.state.activeLabels}
-          />
-        </div>
-        <div className="labels">
-          {this.state.activeLabels.map((label) =>
-            <div key={label.id}>
-              <input type="checkbox" defaultChecked />
-              <Label label={label.label} />
+      <div className="body-wrapper"
+        onClick={() => this.refs.sample.clearSelection()}
+      >
+        <div className="app-wrapper">
+          <div className="title-bar">
+            <MdArrowBack />
+            Sample No. 9213837
+            <MdArrowForward />
+          </div>
+          <div className="sample-label-wrapper"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sample">
+              <Sample
+                ref={"sample"}
+                textLabels={
+                  zip([
+                    this.state.sample.text.split(''),
+                    this.state.sample.labels,
+                    this.state.sample.indices,
+                  ])}
+                setLabels={this.setLabels}
+                activeLabels={this.state.activeLabels}
+                doesRangeHaveLabel={this.doesRangeHaveLabel}
+                highlighting={this.state.highlighting}
+                erasing={this.state.erasing}
+                clearTools={this.clearTools}
+              />
             </div>
-          )}
+            <div className="labels">
+              {this.state.activeLabels.map((label) =>
+                <Label
+                  key={label.id}
+                  label={label}
+                  labelSelection={this.labelSelection}
+                  unlabelSelection={this.unlabelSelection}
+                  toolLock={this.toolLock}
+                  toggleToolLock={this.toggleToolLock}
+                  startHighlighting={this.startHighlighting}
+                  startErasing={this.startErasing}
+                  highlighting={this.state.highlighting}
+                  erasing={this.state.erasing}
+                  clearTools={this.clearTools}
+                  isSelection={this.isSelection}
+                />
+              )}
+            </div>
+          </div>
         </div>
-      </div>
       </div>
     );
   }

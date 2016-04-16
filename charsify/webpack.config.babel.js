@@ -53,6 +53,11 @@ const common = {
         test: /\.(otf|eot|svg|ttf|woff|woff2)(\?.+)$/,
         loader: 'url-loader?limit=8192',
       },
+      {
+        test: /\.png$/,
+        loader: 'url-loader',
+        query: { mimetype: 'image/png' },
+      },
     ],
   },
 };

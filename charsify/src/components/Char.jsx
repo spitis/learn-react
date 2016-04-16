@@ -32,32 +32,37 @@ export default class Char extends React.Component {
     this.setState({ hoverOn: false });
   }
 
-  toggleOn = () => {
+  toggleSelectOn = () => {
     this.setState({ selected: true });
   }
 
-  toggleOff = () => {
+  toggleSelectOff = () => {
     this.setState({ selected: false });
   }
 
-  toggleLabel = (label) => {
+  toggleLabelOn = (label) => {
     const labels = this.state.labels || [];
-    let newLabels = 0;
-    const i = labels.indexOf(label);
-    switch (i) {
-      case -1:
-        newLabels = labels.slice();
-        newLabels.push(label);
-        this.props.setLabels(this.props.idx, newLabels);
-        break;
-      default:
-        newLabels = labels.slice();
-        newLabels.splice(i, 1);
-        this.props.setLabels(this.props.idx, newLabels);
+    if (labels.includes(label)) {
+      return;
     }
+    const newLabels = labels.slice();
+    newLabels.push(label);
+    this.props.setLabels(this.props.idx, newLabels);
     this.setState({
       labels: newLabels,
-      hoverOn: false,
+    });
+  }
+
+  toggleLabelOff = (label) => {
+    const newLabels = this.state.labels.slice() || [];
+    const i = newLabels.indexOf(label);
+    if (i === -1) {
+      return;
+    }
+    newLabels.splice(i, 1);
+    this.props.setLabels(this.props.idx, newLabels);
+    this.setState({
+      labels: newLabels,
     });
   }
 

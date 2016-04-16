@@ -44,17 +44,17 @@ export default class Sample extends React.Component {
 
     for (let i = newStart; i < oldStart; i++) {
       if (i > newEnd) break;
-      this.refs[i].toggleOn();
+      this.refs[i].toggleSelectOn();
     }
     for (let i = oldStart; i < newStart; i++) {
       if (i > oldEnd) break;
-      this.refs[i].toggleOff();
+      this.refs[i].toggleSelectOff();
     }
     for (let i = Math.max(oldEnd + 1, newStart); i <= newEnd; i++) {
-      this.refs[i].toggleOn();
+      this.refs[i].toggleSelectOn();
     }
     for (let i = Math.max(newEnd + 1, oldStart); i <= oldEnd; i++) {
-      this.refs[i].toggleOff();
+      this.refs[i].toggleSelectOff();
     }
 
     this.selection = newSelection;
@@ -64,31 +64,77 @@ export default class Sample extends React.Component {
     this.selStart = -1;
     this.selEnd = -1;
     for (let i = this.selection[0]; i <= this.selection[this.selection.length - 1]; i++) {
-      this.refs[i].toggleOff();
+      this.refs[i].toggleSelectOff();
     }
     this.selection = [];
   }
 
   startSelecting = (e) => {
+    console.log(this.props.highlighting);
     this.clearSelection();
     const selStart = Number(e.target.getAttribute('data-id'));
     this.selecting = true;
     this.selStart = selStart;
     this.selEnd = selStart;
     this.selection = [selStart];
-    this.refs[selStart].toggleOn();
+    this.refs[selStart].toggleSelectOn();
   }
 
   stopSelecting = () => {
+    console.log(this.props.highlighting);
     this.selecting = false;
-    this.selStart = -1;
-    this.selEnd = -1;
+    if (this.props.highlighting) {
+      this.labelSelection(this.props.highlighting);
+      this.clearSelection();
+      this.props.clearTools();
+    }
+  }
+
+  labelSelection = (label) => {
+    if (this.selStart < 0) return;
+    let start = this.selStart;
+    let end = this.selEnd;
+    if (this.selStart > this.selEnd) {
+      start = this.selEnd;
+      end = this.selStart;
+    }
+    for (let i = start; i <= end; i++) {
+      this.refs[i].toggleLabelOn(label);
+    }
+    this.clearSelection();
+  }
+
+  unlabelSelection = (label) => {
+    if (this.selStart < 0) return;
+    let start = this.selStart;
+    let end = this.selEnd;
+    if (this.selStart > this.selEnd) {
+      start = this.selEnd;
+      end = this.selStart;
+    }
+    for (let i = start; i <= end; i++) {
+      this.refs[i].toggleLabelOff(label);
+    }
+    this.clearSelection();
+  }
+
+  getClass = () => {
+    let className = 'sample-text';
+    if (this.props.highlighting) {
+      className += ' highlighting';
+    }
+    if (this.props.erasing) {
+      className += ' erasing';
+    }
+    return className;
   }
 
   render() {
+    console.log('rendering sample');
+
     return (
       <div
-        className="sample-text"
+        className={this.getClass()}
         onMouseLeave={this.stopSelecting}
         onMouseUp={this.stopSelecting}
       >
@@ -114,4 +160,8 @@ Sample.propTypes = {
   textLabels: React.PropTypes.array,
   setLabels: React.PropTypes.func,
   activeLabels: React.PropTypes.array,
+  doesRangeHaveLabel: React.PropTypes.func,
+  highlighting: React.PropTypes.number,
+  erasing: React.PropTypes.number,
+  clearTools: React.PropTypes.func,
 };

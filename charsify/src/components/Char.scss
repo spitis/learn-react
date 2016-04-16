@@ -17,19 +17,19 @@ c {
   padding: 9px 0;
 
   &.selected {
-    background-color: rgb(200,240,255);
+    background-color: rgb(200, 240, 255);
   }
 
 }
 
 c.label-1::before {
-  @include char-underline(6px, rgba(255, 0, 0, 0.3));
+  @include char-underline(9px, rgba(255, 35, 35, 0.5));
 }
 
 c.label-2::after {
-  @include char-underline(3px, rgba(0, 0, 255, 0.3));
+  @include char-underline(6px, rgba(42, 120, 255, 0.5));
 }
 
 d.label-3::after {
-  @include char-underline(0px, rgba(0, 255, 120, 0.5));
+  @include char-underline(3px, rgba(0, 180, 120, 0.5));
 }
