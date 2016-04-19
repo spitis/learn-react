@@ -1,0 +1,39 @@
+@import './mixins.scss';
+
+.label {
+  width: 100%;
+  margin-bottom: 10px;
+
+  @include flexbox();
+  @include no-user-select;
+
+  .labelName {
+    @include flex(1);
+  }
+
+  .labelName svg {
+    float: right;
+    margin-left: 6px;
+  }
+
+  .labelEraser {
+    margin: 0 5px;
+  }
+  
+  span {
+    display: inline-block;
+    padding: 6px;
+    border: 1px solid #eee;
+
+    &:hover {
+      background-color: #eef;
+      border-color: #ddf;
+    }
+
+    &:active {
+      background-color: #ddf;
+    }
+
+    @include border-radius(5px);
+  }
+}

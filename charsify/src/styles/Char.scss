@@ -1,0 +1,51 @@
+@import './mixins.scss';
+
+c {
+  position: relative;
+  padding: 9px 0;
+
+  &.selected {
+    background-color: rgb(200, 240, 255);
+  }
+}
+
+c.label-1 {
+  color: rgb(0, 0, 255);
+}
+c.label-2 {
+  color: rgb(0, 0, 255);
+}
+c.label-3 {
+  color: rgb(0, 0, 255);
+}
+c.label-4 {
+  color: rgb(0, 0, 255);
+}
+c.label-5 {
+  color: rgb(0, 0, 255);
+}
+
+.label-1 c.label-1 {
+  text-decoration: underline;
+  font-weight: 900;
+}
+
+.label-2 c.label-2 {
+  text-decoration: underline;
+  font-weight: 900;
+}
+
+.label-3 c.label-3 {
+  text-decoration: underline;
+  font-weight: 900;
+}
+
+.label-4 c.label-4 {
+  text-decoration: underline;
+  font-weight: 900;
+}
+
+.label-5 c.label-5 {
+  text-decoration: underline;
+  font-weight: 900;
+}
