@@ -1,7 +1,14 @@
-import './main.scss';
-
+import './styles/reset.scss';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './components/App.jsx';
 
-ReactDOM.render(<App />, document.getElementById('app'));
+import { createStore } from 'redux';
+import app from './reducers.js';
+
+let store = createStore(app);
+
+ReactDOM.render(
+  <App store={store} />,
+  document.getElementById('app')
+);

@@ -2,63 +2,49 @@ import React from 'react';
 import TiPencil from 'react-icons/lib/ti/pencil';
 import FaEraser from 'react-icons/lib/fa/eraser';
 import FaEllipsisH from 'react-icons/lib/fa/ellipsis-h';
-import './Label.scss';
+import '../styles/Label.scss';
 
 export default class Label extends React.Component {
 
-  highlightClickHandler = (e) => {
-    const label = Number(e.target.getAttribute('data-id'));
-
-    if (this.props.isSelection()) {
-      this.props.labelSelection(label);
-      return;
-    }
-
-    if (this.props.highlighting) {
-      if (this.props.toolLock) {
-        this.props.toggleToolLock();
-      }
-      this.props.clearTools();
-      return;
-    }
-
-    this.props.startHighlighting(label);
-  }
-
   render() {
     return (
-      <div className="label">
+      <div className="label"
+        onMouseOver={this.props.setVisibleLabel}
+        onMouseOut={this.props.unsetVisibleLabel}
+      >
+
         <span
           className="labelName"
-          data-id={this.props.label.no}
-          onMouseDown={this.highlightClickHandler}
+          data-id={this.props.idx}
+          onClick={this.props.mainClickHandler}
         >
-          {this.props.label.label} <TiPencil />
+          {this.props.name} <TiPencil />
         </span>
+
         <span
           className="labelEraser"
-          onMouseDown={() => this.props.unlabelSelection(this.props.label.no)}
+          data-id={this.props.idx}
+          onClick={this.props.eraseClickHandler}
         >
           <FaEraser />
         </span>
-        <span className="labelMore">
+
+        <span
+          className="labelMore"
+        >
           <FaEllipsisH />
         </span>
+
       </div>
     );
   }
 }
 
 Label.propTypes = {
-  label: React.PropTypes.object,
-  labelSelection: React.PropTypes.func,
-  unlabelSelection: React.PropTypes.func,
-  toolLock: React.PropTypes.func,
-  toggleToolLock: React.PropTypes.func,
-  startHighlighting: React.PropTypes.func,
-  startErasing: React.PropTypes.func,
-  highlighting: React.PropTypes.number,
-  erasing: React.PropTypes.number,
-  clearTools: React.PropTypes.func,
-  isSelection: React.PropTypes.func,
+  idx: React.PropTypes.string,
+  name: React.PropTypes.string,
+  mainClickHandler: React.PropTypes.func,
+  eraseClickHandler: React.PropTypes.func,
+  setVisibleLabel: React.PropTypes.func,
+  unsetVisibleLabel: React.PropTypes.func,
 };

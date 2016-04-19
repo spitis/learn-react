@@ -1,5 +1,6 @@
 import React from 'react';
-import './Char.scss';
+import _ from 'lodash';
+import '../styles/Char.scss';
 
 export default class Char extends React.Component {
   constructor(props) {
@@ -11,27 +12,6 @@ export default class Char extends React.Component {
     };
   }
 
-  setpos = (e) => {
-    const mousepos = this.mousepos(e);
-    this.x = mousepos[0];
-    this.y = mousepos[1];
-  }
-
-  mousepos = (e) => [e.clientX, e.clientY];
-
-  range = [0, 0];
-
-  x = 0;
-  y = 0;
-
-  hoverOn = () => {
-    this.setState({ hoverOn: true });
-  }
-
-  hoverOff= () => {
-    this.setState({ hoverOn: false });
-  }
-
   toggleSelectOn = () => {
     this.setState({ selected: true });
   }
@@ -41,28 +21,14 @@ export default class Char extends React.Component {
   }
 
   toggleLabelOn = (label) => {
-    const labels = this.state.labels || [];
-    if (labels.includes(label)) {
-      return;
-    }
-    const newLabels = labels.slice();
-    newLabels.push(label);
-    this.props.setLabels(this.props.idx, newLabels);
     this.setState({
-      labels: newLabels,
+      labels: _.union(this.state.labels, [label]),
     });
   }
 
   toggleLabelOff = (label) => {
-    const newLabels = this.state.labels.slice() || [];
-    const i = newLabels.indexOf(label);
-    if (i === -1) {
-      return;
-    }
-    newLabels.splice(i, 1);
-    this.props.setLabels(this.props.idx, newLabels);
     this.setState({
-      labels: newLabels,
+      labels: this.state.labels.filter(lbl => lbl !== label),
     });
   }
 
@@ -70,16 +36,9 @@ export default class Char extends React.Component {
     const labels = this.state.labels || [];
 
     let primaryLabels = '';
-    for (let i = 1; i < 3; i++) {
-      if (labels.includes(i)) {
+    for (let i = 1; i < 6; i++) {
+      if (labels.includes(String(i))) {
         primaryLabels += ` label-${i}`;
-      }
-    }
-
-    let secondaryLabels = '';
-    for (let i = 3; i < 6; i++) {
-      if (labels.includes(i)) {
-        secondaryLabels += ` label-${i}`;
       }
     }
 
@@ -87,15 +46,13 @@ export default class Char extends React.Component {
       <c
         className={
           primaryLabels +
-          (this.state.selected ? ' selected' : '') +
-          (this.state.hoverOn ? ' hover' : '')}
-        onMouseOver={this.hoverOn}
-        onMouseLeave={this.hoverOff}
+          (this.state.selected ? ' selected' : '')
+        }
         onMouseMove={this.props.dragSelection}
         onMouseDown={this.props.startSelecting}
+        onDoubleClick={this.props.selectWord}
         data-id={this.props.idx}
       >
-        <d className={secondaryLabels} />
         {this.props.c}
       </c>
     );
@@ -108,6 +65,4 @@ Char.propTypes = {
   labels: React.PropTypes.array,
   dragSelection: React.PropTypes.func,
   startSelecting: React.PropTypes.func,
-  setLabels: React.PropTypes.func,
-  activeLabels: React.PropTypes.array,
 };

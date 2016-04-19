@@ -1,53 +1,150 @@
 import React from 'react';
 import Char from './Char.jsx';
-import './Sample.scss';
+import '../styles/Sample.scss';
+import {
+  selectRange,
+  addLabel,
+  removeLabel,
+  Tools,
+} from '../actions.js';
 
 export default class Sample extends React.Component {
 
-  selecting = false;
-  selStart = -1;
-  selEnd = -1;
-  selection = [];
+  constructor(props) {
+    super(props);
+    const state = this.props.store.getState();
 
+    this.state = {
+      chars: state.chars,
+      labels: state.labels,
+    };
+
+    this.selecting = false;
+    this.selAnchor = -1;
+    this.selFocus = -1;
+    this.oldStart = -1;
+    this.oldEnd = -1;
+    this.tool = state.tool;
+  }
+
+  shouldComponentUpdate() {
+    return false;
+  }
+
+  componentDidMount() {
+    this.unsubscribe = this.props.store.subscribe(() => {
+      const state = this.props.store.getState();
+
+      // state only resets when chars change,
+      // not when their labels change.
+      if (state.chars !== this.state.chars) {
+        this.resetState(state);
+      }
+
+      if (JSON.stringify(state.tool) !== JSON.stringify(this.state.tool)) {
+        this.tool = state.tool;
+      }
+
+      // also change it in response to changed selection
+      // (so other parts of app can clearSelection)
+      const [start, end] = this.getSelStartEnd();
+      if (
+        (state.selection.start !== start) ||
+        (state.selection.end !== end)
+      ) {
+        this.selAnchor = state.selection.start;
+        this.selFocus = state.selection.end;
+        this.renderSelection();
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
+
+  getSelStartEnd = () => {
+    let start;
+    let end;
+
+    if (this.selAnchor < this.selFocus) {
+      start = this.selAnchor;
+      end = this.selFocus;
+    } else {
+      start = this.selFocus;
+      end = this.selAnchor;
+    }
+    return [start, end];
+  }
+
+  resetState = (state) => {
+    this.setState({
+      chars: state.chars,
+      labels: state.labels,
+    });
+    this.selecting = false;
+    this.selAnchor = -1;
+    this.selFocus = -1;
+    this.oldStart = -1;
+    this.oldEnd = -1;
+  }
+
+  selectRange = () => {
+    this.props.store.dispatch(selectRange(this.selAnchor, this.selFocus));
+    this.renderSelection();
+  }
+
+  // called on mousedown of individual Chars
+  startSelecting = (e) => {
+    this.selecting = true;
+    this.selAnchor = Number(e.target.getAttribute('data-id'));
+    this.selFocus = this.selAnchor;
+    this.selectRange();
+  }
+
+  // called on mousemove of individual Chars
   dragSelection = (e) => {
     if (!this.selecting) return;
     const charIdx = Number(e.target.getAttribute('data-id'));
-    let changed = false;
-    if (this.selStart < 0) {
-      this.selStart = charIdx;
-    }
-    if (this.selEnd !== charIdx) {
-      changed = true;
-      this.selEnd = charIdx;
-    }
-    if (changed) {
-      this.changeSelection();
+    if (this.selFocus === charIdx) return;
+
+    this.selFocus = charIdx;
+    this.selectRange();
+  }
+
+  // called on mouseup
+  stopSelecting = () => {
+    this.selecting = false;
+
+    switch (this.tool.type) {
+      case Tools.HIGHLIGHTER:
+        this.labelSelection(this.tool.options.labelKey);
+        break;
+      case Tools.ERASER:
+        this.unlabelSelection(this.tool.options.labelKey);
+        break;
+      default:
+        return;
     }
   }
 
-  changeSelection = () => {
-    const newSelection = [];
-    if (this.selStart > this.selEnd) {
-      for (let i = this.selEnd; i <= this.selStart; i++) {
-        newSelection.push(i);
-      }
-    } else {
-      for (let i = this.selStart; i <= this.selEnd; i++) {
-        newSelection.push(i);
-      }
-    }
+  clearSelection = () => {
+    this.selAnchor = -1;
+    this.selFocus = -1;
+    this.selectRange();
+  }
 
-    const newStart = newSelection[0];
-    const newEnd = newSelection[newSelection.length - 1];
-    const oldStart = this.selection[0];
-    const oldEnd = this.selection[this.selection.length - 1];
+  renderSelection = () => {
+    const [newStart, newEnd] = this.getSelStartEnd();
+    const oldStart = this.oldStart;
+    const oldEnd = this.oldEnd;
 
     for (let i = newStart; i < oldStart; i++) {
-      if (i > newEnd) break;
+      if (i > newEnd || i === -1) break;
       this.refs[i].toggleSelectOn();
     }
     for (let i = oldStart; i < newStart; i++) {
-      if (i > oldEnd) break;
+      if (i > oldEnd || i === -1) break;
       this.refs[i].toggleSelectOff();
     }
     for (let i = Math.max(oldEnd + 1, newStart); i <= newEnd; i++) {
@@ -57,98 +154,84 @@ export default class Sample extends React.Component {
       this.refs[i].toggleSelectOff();
     }
 
-    this.selection = newSelection;
-  }
-
-  clearSelection = () => {
-    this.selStart = -1;
-    this.selEnd = -1;
-    for (let i = this.selection[0]; i <= this.selection[this.selection.length - 1]; i++) {
-      this.refs[i].toggleSelectOff();
-    }
-    this.selection = [];
-  }
-
-  startSelecting = (e) => {
-    console.log(this.props.highlighting);
-    this.clearSelection();
-    const selStart = Number(e.target.getAttribute('data-id'));
-    this.selecting = true;
-    this.selStart = selStart;
-    this.selEnd = selStart;
-    this.selection = [selStart];
-    this.refs[selStart].toggleSelectOn();
-  }
-
-  stopSelecting = () => {
-    console.log(this.props.highlighting);
-    this.selecting = false;
-    if (this.props.highlighting) {
-      this.labelSelection(this.props.highlighting);
-      this.clearSelection();
-      this.props.clearTools();
-    }
+    this.oldStart = newStart;
+    this.oldEnd = newEnd;
   }
 
   labelSelection = (label) => {
-    if (this.selStart < 0) return;
-    let start = this.selStart;
-    let end = this.selEnd;
-    if (this.selStart > this.selEnd) {
-      start = this.selEnd;
-      end = this.selStart;
-    }
+    if (this.selAnchor < 0) return;
+    const [start, end] = this.getSelStartEnd();
     for (let i = start; i <= end; i++) {
       this.refs[i].toggleLabelOn(label);
     }
+    this.props.store.dispatch(addLabel(label));
     this.clearSelection();
   }
 
   unlabelSelection = (label) => {
-    if (this.selStart < 0) return;
-    let start = this.selStart;
-    let end = this.selEnd;
-    if (this.selStart > this.selEnd) {
-      start = this.selEnd;
-      end = this.selStart;
-    }
+    if (this.selAnchor < 0) return;
+    const [start, end] = this.getSelStartEnd();
     for (let i = start; i <= end; i++) {
       this.refs[i].toggleLabelOff(label);
     }
+    this.props.store.dispatch(removeLabel(label));
     this.clearSelection();
   }
 
-  getClass = () => {
-    let className = 'sample-text';
-    if (this.props.highlighting) {
-      className += ' highlighting';
+  selectWord = (e) => {
+    const target = e.target.getAttribute('data-id');
+    let first = 0;
+    let last = this.state.chars.length - 1;
+    for (let i = target; i >= 0; i--) {
+      if (
+        this.state.chars[i] === ' ' ||
+        this.state.chars[i] === '.' ||
+        this.state.chars[i] === ','
+      ) {
+        first = i + 1;
+        break;
+      }
     }
-    if (this.props.erasing) {
-      className += ' erasing';
+    for (let i = target; i <= last; i++) {
+      if (
+        this.state.chars[i] === ' ' ||
+        this.state.chars[i] === '.' ||
+        this.state.chars[i] === ','
+      ) {
+        last = i - 1;
+        break;
+      }
     }
-    return className;
+    this.selAnchor = first;
+    this.selFocus = last;
+    this.selectRange();
+    this.stopSelecting();
   }
 
   render() {
-    console.log('rendering sample');
+    const chars = this.state.chars;
+    const labels = this.state.labels;
+    const indices = new Array(this.state.chars.length);
+    for (let i = 0; i < indices.length; i++) {
+      indices[i] = i;
+    }
 
     return (
       <div
-        className={this.getClass()}
+        className="sample-text"
         onMouseLeave={this.stopSelecting}
         onMouseUp={this.stopSelecting}
       >
-        {[].map.call(this.props.textLabels, (charLabels) => (
+        {[].map.call(indices, (i) => (
             <Char
-              key={charLabels[2]}
-              idx={charLabels[2]}
-              ref={charLabels[2]}
-              c={charLabels[0]}
-              labels={charLabels[1]}
+              key={i}
+              idx={i}
+              ref={i}
+              c={chars[i]}
+              labels={labels[i]}
               dragSelection={this.dragSelection}
               startSelecting={this.startSelecting}
-              setLabels={this.props.setLabels}
-              activeLabels={this.props.activeLabels}
+              selectWord={this.selectWord}
             />
         ))}
       </div>
@@ -157,11 +240,5 @@ export default class Sample extends React.Component {
 }
 
 Sample.propTypes = {
-  textLabels: React.PropTypes.array,
-  setLabels: React.PropTypes.func,
-  activeLabels: React.PropTypes.array,
-  doesRangeHaveLabel: React.PropTypes.func,
-  highlighting: React.PropTypes.number,
-  erasing: React.PropTypes.number,
-  clearTools: React.PropTypes.func,
+  store: React.PropTypes.object,
 };

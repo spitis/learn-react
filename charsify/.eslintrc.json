@@ -3,5 +3,8 @@
   "parser": "babel-eslint",
   "plugins": [
     "react"
-  ]
+  ],
+  "rules": {
+    "react/sort-comp": "off"
+  }
 }
