@@ -48,16 +48,37 @@ export function clearSelection() {
   };
 }
 
-export function addLabel(label) {
+export function addLabel(label, endpoint1, endpoint2) {
+  if (endpoint1 < endpoint2) {
+    return {
+      type: ADD_LABEL,
+      label,
+      start: endpoint1,
+      end: endpoint2,
+    };
+  }
   return {
     type: ADD_LABEL,
     label,
+    start: endpoint2,
+    end: endpoint1,
   };
 }
-export function removeLabel(label) {
+
+export function removeLabel(label, endpoint1, endpoint2) {
+  if (endpoint1 < endpoint2) {
+    return {
+      type: REMOVE_LABEL,
+      label,
+      start: endpoint1,
+      end: endpoint2,
+    };
+  }
   return {
     type: REMOVE_LABEL,
     label,
+    start: endpoint2,
+    end: endpoint1,
   };
 }
 

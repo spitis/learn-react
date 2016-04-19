@@ -28,24 +28,24 @@ export default function app(state = TEST, action) {
       }
       return Object.assign({}, state, {
         labels: [
-          ...state.labels.slice(0, state.selection.start),
-          ...state.labels.slice(state.selection.start, state.selection.end + 1)
+          ...state.labels.slice(0, action.start),
+          ...state.labels.slice(action.start, action.end + 1)
               .map(labelsForChar =>
                 _.union(labelsForChar, [action.label])),
-          ...state.labels.slice(state.selection.end + 1),
+          ...state.labels.slice(action.end + 1),
         ],
       });
     case REMOVE_LABEL:
-      if (state.selection.start === -1) {
+      if (action.start === -1) {
         return state;
       }
       return Object.assign({}, state, {
         labels: [
-          ...state.labels.slice(0, state.selection.start),
-          ...state.labels.slice(state.selection.start, state.selection.end + 1)
+          ...state.labels.slice(0, action.start),
+          ...state.labels.slice(action.start, action.end + 1)
               .map(labelsForChar =>
                 labelsForChar.filter(label => label !== action.label)),
-          ...state.labels.slice(state.selection.end + 1),
+          ...state.labels.slice(action.end + 1),
         ],
       });
     case MARK_LABEL_COMPLETE:

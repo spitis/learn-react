@@ -10,5 +10,5 @@ let store = createStore(app);
 
 ReactDOM.render(
   <App store={store} />,
-  document.getElementById('app')
+  document.getElementById('app') 
 );
