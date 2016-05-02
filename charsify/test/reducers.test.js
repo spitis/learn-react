@@ -1,5 +1,5 @@
 import test from 'tape';
-import reducer from '../src/reducers.js';
+import app from '../src/reducers.js';
 
 import {
   selectRange,
@@ -24,13 +24,16 @@ const TEST_SAMPLE_SHORT = {
     type: Tools.DEFAULT,
     options: {},
   },
-  completed_labels: [],
+  completedLabels: [],
   visibleLabel: 0,
 };
 
+test('DEFAULT ACTION', t => {
+  const state = TEST_SAMPLE_SHORT;
+  t.deepEqual(state, app(state, { type: 'RANDOM' }));
+  t.end();
+});
 
-test('SELECT_RANGE', t => {
-  SELECT_RANGE;
-  t.equal(2, 2, '1=2');
+test('ADD LABEL', t => {
   t.end();
 });

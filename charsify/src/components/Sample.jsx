@@ -164,7 +164,7 @@ export default class Sample extends React.Component {
     for (let i = start; i <= end; i++) {
       this.refs[i].toggleLabelOn(label);
     }
-    this.props.store.dispatch(addLabel(label));
+    this.props.store.dispatch(addLabel(label, start, end));
     this.clearSelection();
   }
 
@@ -174,7 +174,7 @@ export default class Sample extends React.Component {
     for (let i = start; i <= end; i++) {
       this.refs[i].toggleLabelOff(label);
     }
-    this.props.store.dispatch(removeLabel(label));
+    this.props.store.dispatch(removeLabel(label, start, end));
     this.clearSelection();
   }
 

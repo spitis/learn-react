@@ -48,7 +48,7 @@ export function clearSelection() {
   };
 }
 
-export function addLabel(label, endpoint1, endpoint2) {
+export function addLabel(label, endpoint1 = -1, endpoint2 = -1) {
   if (endpoint1 < endpoint2) {
     return {
       type: ADD_LABEL,
@@ -65,7 +65,7 @@ export function addLabel(label, endpoint1, endpoint2) {
   };
 }
 
-export function removeLabel(label, endpoint1, endpoint2) {
+export function removeLabel(label, endpoint1 = -1, endpoint2 = -1) {
   if (endpoint1 < endpoint2) {
     return {
       type: REMOVE_LABEL,

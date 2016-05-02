@@ -80,7 +80,7 @@ export const TEST_SAMPLE_LONG = {
     type: Tools.DEFAULT,
     options: {},
   },
-  completed_labels: [],
+  completedLabels: [],
   visibleLabel: 0,
 };
 
@@ -95,6 +95,6 @@ export const TEST_SAMPLE_SHORT = {
     type: Tools.DEFAULT,
     options: {},
   },
-  completed_labels: [],
+  completedLabels: [],
   visibleLabel: 0,
 };

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { TEST_SAMPLE_LONG } from './test_state.js';
+import { TEST_SAMPLE_SHORT } from './test_state.js';
 
 import {
   SELECT_RANGE,
@@ -11,51 +11,82 @@ import {
   SET_VISIBLE_LABEL,
 } from './actions.js';
 
-const TEST = TEST_SAMPLE_LONG;
+const TEST = TEST_SAMPLE_SHORT;
 
-export default function app(state = TEST, action) {
+const defaultSelection = {
+  start: -1,
+  end: -1,
+};
+
+export function selection(state = defaultSelection, action) {
   switch (action.type) {
     case SELECT_RANGE:
-      return Object.assign({}, state, {
-        selection: {
-          start: action.start,
-          end: action.end,
-        },
-      });
+      return {
+        start: action.start,
+        end: action.end,
+      };
+    default:
+      return state;
+  }
+}
+
+// no default, depends on chars
+export function labels(state, action) {
+  switch (action.type) {
     case ADD_LABEL:
-      if (state.selection.start === -1) {
+      if (action.start === -1) {
         return state;
       }
-      return Object.assign({}, state, {
-        labels: [
-          ...state.labels.slice(0, action.start),
-          ...state.labels.slice(action.start, action.end + 1)
+      return [
+        ...state.slice(0, action.start),
+        ...state.slice(action.start, action.end + 1)
               .map(labelsForChar =>
                 _.union(labelsForChar, [action.label])),
-          ...state.labels.slice(action.end + 1),
-        ],
-      });
+        ...state.slice(action.end + 1),
+      ];
     case REMOVE_LABEL:
       if (action.start === -1) {
         return state;
       }
-      return Object.assign({}, state, {
-        labels: [
-          ...state.labels.slice(0, action.start),
-          ...state.labels.slice(action.start, action.end + 1)
+      return [
+        ...state.labels.slice(0, action.start),
+        ...state.labels.slice(action.start, action.end + 1)
               .map(labelsForChar =>
                 labelsForChar.filter(label => label !== action.label)),
-          ...state.labels.slice(action.end + 1),
-        ],
-      });
+        ...state.labels.slice(action.end + 1),
+      ];
+    default:
+      return state;
+  }
+}
+
+export function completedLabels(state, action) {
+  switch (action.type) {
     case MARK_LABEL_COMPLETE:
-      return Object.assign({}, state, {
-        completed_labels: _.union(state.completed_labels, [action.label]),
-      });
+      return _.union(state, [action.label]);
     case MARK_LABEL_INCOMPLETE:
-      return Object.assign({}, state, {
-        completed_labels: state.completed_labels.filter(label => label !== action.label),
-      });
+      return state.filter(label => label !== action.label);
+    default:
+      return state;
+  }
+}
+
+export default function app(state = TEST, action) {
+  switch (action.type) {
+    case SELECT_RANGE:
+      return Object.assign({}, state,
+        { selection: selection(state.selection, action) }
+      );
+    case ADD_LABEL:
+    case REMOVE_LABEL:
+      return Object.assign({}, state,
+        { labels: labels(state.labels, action) }
+      );
+    case MARK_LABEL_COMPLETE:
+    case MARK_LABEL_INCOMPLETE:
+      return Object.assign({}, state,
+        { completedLabels: completedLabels(state.completed_labels, action) }
+      );
     case USE_TOOL:
       return Object.assign({}, state, {
         tool: action.tool,

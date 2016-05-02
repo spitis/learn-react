@@ -31,6 +31,7 @@ export default class Label extends React.Component {
 
         <span
           className="labelMore"
+          onClick={this.props.sendData}
         >
           <FaEllipsisH />
         </span>
@@ -47,4 +48,5 @@ Label.propTypes = {
   eraseClickHandler: React.PropTypes.func,
   setVisibleLabel: React.PropTypes.func,
   unsetVisibleLabel: React.PropTypes.func,
+  sendData: React.PropTypes.func,
 };

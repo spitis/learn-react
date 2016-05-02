@@ -96,6 +96,16 @@ export default class Labels extends React.Component {
     this.props.store.dispatch(useTool(this.tool));
   }
 
+  sendData = () => {
+    const data = this.props.store.getState();
+    fetch('http://127.0.0.1:3334/data', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+    .then(res => res.text())
+    .then(text => console.log(text));
+  }
+
   render() {
     const activeLabels = this.state.activeLabels;
 
@@ -112,7 +122,7 @@ export default class Labels extends React.Component {
                 eraseClickHandler={this.eraseClickHandler(key)}
                 setVisibleLabel={this.setVisibleLabel(key)}
                 unsetVisibleLabel={this.unsetVisibleLabel}
-
+                sendData={this.sendData}
               />
             );
           }
